@@ -264,14 +264,24 @@ public class Level {
      */
     private void updateObservers() {
         if (!isAnyPlayerAlive()) {
-            for (LevelObserver observer : observers) {
-                observer.levelLost();
-            }
+            levelLost();
         }
         if (remainingPellets() == 0) {
             for (LevelObserver observer : observers) {
-                observer.levelWon();
+                levelWon();
             }
+        }
+    }
+
+    private void levelLost() {
+        for (LevelObserver observer : observers) {
+            observer.levelLost();
+        }
+    }
+
+    private void levelWon() {
+        for (LevelObserver observer : observers) {
+            observer.levelWon();
         }
     }
 
@@ -301,15 +311,23 @@ public class Level {
         int pellets = 0;
         for (int x = 0; x < board.getWidth(); x++) {
             for (int y = 0; y < board.getHeight(); y++) {
-                for (Unit unit : board.squareAt(x, y).getOccupants()) {
-                    if (unit instanceof Pellet) {
-                        pellets++;
-                    }
-                }
+                pellets += pelletsToAdd(x,y);
             }
         }
         assert pellets >= 0;
         return pellets;
+    }
+
+    private int pelletsToAdd(int x, int y) {
+        int pelletsToAdd = 0;
+
+        for (Unit unit : board.squareAt(x, y).getOccupants()) {
+            if (unit instanceof Pellet) {
+                pelletsToAdd++;
+            }
+        }
+
+        return pelletsToAdd;
     }
 
     /**
