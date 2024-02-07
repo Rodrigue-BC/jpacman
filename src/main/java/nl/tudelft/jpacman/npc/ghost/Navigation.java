@@ -55,20 +55,26 @@ public final class Navigation {
                 return node.getPath();
             }
             visited.add(square);
-            addNewTargets(traveller, targets, visited, node, square);
+            targets.addAll(addNewTargets(traveller, visited, node, square));
         }
         return null;
     }
 
-    private static void addNewTargets(Unit traveller, List<Node> targets,
-                                      Set<Square> visited, Node node, Square square) {
+    private static List<Node> addNewTargets(Unit traveller, Set<Square> visited, Node node, Square square) {
+        List<Node> targets = new ArrayList<>();
+
         for (Direction direction : Direction.values()) {
             Square target = square.getSquareAt(direction);
-            if (!visited.contains(target)
-                && (traveller == null || target.isAccessibleTo(traveller))) {
+            if (hasToAddTarget(traveller, target, visited)) {
                 targets.add(new Node(direction, target, node));
             }
         }
+
+        return targets;
+    }
+
+    private static boolean hasToAddTarget(Unit traveller, Square target, Set<Square> visited) {
+        return !visited.contains(target) && (traveller == null || target.isAccessibleTo(traveller));
     }
 
     /**
@@ -98,15 +104,25 @@ public final class Navigation {
                 return unit;
             }
             visited.add(square);
-            for (Direction direction : Direction.values()) {
-                Square newTarget = square.getSquareAt(direction);
-                if (!visited.contains(newTarget) && !toDo.contains(newTarget)) {
-                    toDo.add(newTarget);
-                }
-            }
+
+            toDo.addAll(getNewTarget(square, visited, toDo));
         }
         return null;
     }
+
+    private static List<Square> getNewTarget(Square square, Set<Square> visited, List<Square> toDo) {
+        List<Square> res = new ArrayList<>();
+
+        for (Direction direction : Direction.values()) {
+            Square newTarget = square.getSquareAt(direction);
+            if (!visited.contains(newTarget) && !toDo.contains(newTarget)) {
+                res.add(newTarget);
+            }
+        }
+
+        return res;
+    }
+
 
     /**
      *  Finds a subtype of Unit in a level.
