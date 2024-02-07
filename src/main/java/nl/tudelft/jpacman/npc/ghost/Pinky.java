@@ -109,7 +109,7 @@ public class Pinky extends Ghost {
      * @return A direction in which the ghost can move, or <code>null</code> if
      * the ghost is shut in by inaccessible squares.
      */
-    @Override
+    /*@Override
     protected Direction randomMove() {
         Square square = getSquare();
         List<Direction> directions = new ArrayList<>();
@@ -123,5 +123,5 @@ public class Pinky extends Ghost {
         }
         int i = new Random().nextInt(directions.size());
         return directions.get(i);
-    }
+    }*/
 }
