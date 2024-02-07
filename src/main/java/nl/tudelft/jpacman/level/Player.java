@@ -14,6 +14,8 @@ import nl.tudelft.jpacman.sprite.Sprite;
  */
 public class Player extends Unit {
 
+    private static final int NUMBER_OF_LIVES = 3;
+
     /**
      * The amount of points accumulated by this player.
      */
@@ -39,6 +41,8 @@ public class Player extends Unit {
      */
     private Unit killer;
 
+    private int remainingLife;
+
     /**
      * Creates a new player with a score of 0 points.
      *
@@ -52,6 +56,7 @@ public class Player extends Unit {
         this.alive = true;
         this.sprites = spriteMap;
         this.deathSprite = deathAnimation;
+        this.remainingLife = NUMBER_OF_LIVES;
         deathSprite.setAnimating(false);
     }
 
@@ -62,6 +67,17 @@ public class Player extends Unit {
      */
     public boolean isAlive() {
         return alive;
+    }
+
+    public void removeLife() {
+        if (remainingLife > 0)
+            remainingLife --;
+
+        System.out.println(remainingLife);
+    }
+
+    public boolean hasRemainingLife() {
+        return this.remainingLife > 0;
     }
 
     /**
