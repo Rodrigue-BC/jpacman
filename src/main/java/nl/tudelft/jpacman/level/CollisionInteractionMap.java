@@ -86,12 +86,16 @@ public class CollisionInteractionMap implements CollisionMap {
      */
     private void addHandler(Class<? extends Unit> collider,
                             Class<? extends Unit> collidee, CollisionHandler<?, ?> handler) {
-        if (!handlers.containsKey(collider)) {
+        if (!isColliderInHandler(collider)) {
             handlers.put(collider, new HashMap<>());
         }
 
         Map<Class<? extends Unit>, CollisionHandler<?, ?>> map = handlers.get(collider);
         map.put(collidee, handler);
+    }
+
+    private boolean isColliderInHandler(Class<? extends Unit> collider) {
+        return handlers.containsKey(collider);
     }
 
     /**
@@ -113,22 +117,29 @@ public class CollisionInteractionMap implements CollisionMap {
     public <C1 extends Unit, C2 extends Unit> void collide(C1 collider,
                                                            C2 collidee) {
         Class<? extends Unit> colliderKey = getMostSpecificClass(handlers, collider.getClass());
-        if (colliderKey == null) {
-            return;
-        }
 
         Map<Class<? extends Unit>, CollisionHandler<?, ?>> map = handlers.get(colliderKey);
         Class<? extends Unit> collideeKey = getMostSpecificClass(map, collidee.getClass());
-        if (collideeKey == null) {
-            return;
-        }
+
 
         CollisionHandler<C1, C2> collisionHandler = (CollisionHandler<C1, C2>) map.get(collideeKey);
-        if (collisionHandler == null) {
+
+        if(anyNull(colliderKey, collideeKey, collisionHandler))
             return;
-        }
 
         collisionHandler.handleCollision(collider, collidee);
+    }
+
+    private boolean isNull(CollisionHandler<? extends Unit, ? extends Unit> collision) {
+        return collision == null;
+    }
+
+    private boolean isNull(Class<? extends Unit> clazz) {
+        return clazz == null;
+    }
+
+    private boolean anyNull(Class<? extends Unit> collider, Class<? extends Unit> collidee, CollisionHandler<? extends Unit, ? extends Unit> collision) {
+        return isNull(collider) && isNull(collidee) && isNull(collision);
     }
 
     /**
@@ -143,13 +154,19 @@ public class CollisionInteractionMap implements CollisionMap {
      */
     private Class<? extends Unit> getMostSpecificClass(
         Map<Class<? extends Unit>, ?> map, Class<? extends Unit> key) {
+
         List<Class<? extends Unit>> collideeInheritance = getInheritance(key);
+
         for (Class<? extends Unit> pointer : collideeInheritance) {
-            if (map.containsKey(pointer)) {
+            if (specificClass(map, pointer)) {
                 return pointer;
             }
         }
         return null;
+    }
+
+    private boolean specificClass(Map<Class<? extends Unit>, ?> map, Class<? extends Unit> pointer) {
+        return map.containsKey(pointer);
     }
 
     /**
@@ -170,11 +187,8 @@ public class CollisionInteractionMap implements CollisionMap {
         while (found.size() > index) {
             Class<?> current = found.get(index);
 
-            Class<? extends Unit> superClass = getSuperClass((Class<? extends Unit>) current);
-            found.add(superClass);
-
-            List<Class<? extends Unit>> interfaces = getClassInterface((Class<? extends Unit>) current);
-            found.addAll(interfaces);
+            found.add(getSuperClass((Class<? extends Unit>) current));
+            found.addAll(getClassInterface((Class<? extends Unit>) current));
 
             index++;
         }
@@ -192,11 +206,8 @@ public class CollisionInteractionMap implements CollisionMap {
      */
     private Class<? extends Unit> getSuperClass(Class<? extends Unit> clazz) {
         Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null && Unit.class.isAssignableFrom(superClass)) {
-            return (Class<? extends Unit>) superClass;
-        }
 
-        return null;
+        return isSuperClass(superClass) ? (Class<? extends Unit>) superClass: null;
     }
 
     /**
@@ -214,6 +225,10 @@ public class CollisionInteractionMap implements CollisionMap {
         }
 
         return res;
+    }
+
+    private boolean isSuperClass(Class<?> superClass) {
+        return superClass != null && Unit.class.isAssignableFrom(superClass);
     }
 
     /**
