@@ -267,9 +267,7 @@ public class Level {
             levelLost();
         }
         if (remainingPellets() == 0) {
-            for (LevelObserver observer : observers) {
-                levelWon();
-            }
+            levelWon();
         }
     }
 
