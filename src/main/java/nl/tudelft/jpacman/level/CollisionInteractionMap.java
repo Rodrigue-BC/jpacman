@@ -1,9 +1,6 @@
 package nl.tudelft.jpacman.level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import nl.tudelft.jpacman.board.Unit;
 
@@ -172,19 +169,51 @@ public class CollisionInteractionMap implements CollisionMap {
         int index = 0;
         while (found.size() > index) {
             Class<?> current = found.get(index);
-            Class<?> superClass = current.getSuperclass();
-            if (superClass != null && Unit.class.isAssignableFrom(superClass)) {
-                found.add((Class<? extends Unit>) superClass);
-            }
-            for (Class<?> classInterface : current.getInterfaces()) {
-                if (Unit.class.isAssignableFrom(classInterface)) {
-                    found.add((Class<? extends Unit>) classInterface);
-                }
-            }
+
+            Class<? extends Unit> superClass = getSuperClass((Class<? extends Unit>) current);
+            found.add(superClass);
+
+            List<Class<? extends Unit>> interfaces = getClassInterface((Class<? extends Unit>) current);
+            found.addAll(interfaces);
+
             index++;
         }
 
+        // Remove all null values from the list that could've been added
+        found.removeAll(Collections.singleton(null));
+
         return found;
+    }
+
+    /**
+     * Returns the super class of a class.
+     * @param clazz The class.
+     * @return The super class if there is, otherwise null.
+     */
+    private Class<? extends Unit> getSuperClass(Class<? extends Unit> clazz) {
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null && Unit.class.isAssignableFrom(superClass)) {
+            return (Class<? extends Unit>) superClass;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a list of the interfaces of a class.
+     * @param clazz The class.
+     * @return A list of the interfaces of the class.
+     */
+    private List<Class<? extends Unit>> getClassInterface (Class<? extends Unit> clazz) {
+        List<Class<? extends Unit>> res = new ArrayList<>();
+
+        for (Class<?> classInterface : clazz.getInterfaces()) {
+            if (Unit.class.isAssignableFrom(classInterface)) {
+                res.add((Class<? extends Unit>) classInterface);
+            }
+        }
+
+        return res;
     }
 
     /**
