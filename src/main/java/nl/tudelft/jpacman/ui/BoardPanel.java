@@ -89,7 +89,7 @@ class BoardPanel extends JPanel {
                 int cellX = x * cellW;
                 int cellY = y * cellH;
                 Square square = board.squareAt(x, y);
-                render(square, graphics, cellX, cellY, cellW, cellH);
+                render(square, graphics, new BoardInformation(cellX, cellY, cellW, cellH));
             }
         }
     }
@@ -102,19 +102,60 @@ class BoardPanel extends JPanel {
      *            The square to render.
      * @param graphics
      *            The graphics context to draw on.
-     * @param x
-     *            The x position to start drawing.
-     * @param y
-     *            The y position to start drawing.
-     * @param width
-     *            The width of this square (in pixels.)
-     * @param height
-     *            The height of this square (in pixels.)
+     * @param boardInformation
+     *            The information of where to draw on the board.
      */
-    private void render(Square square, Graphics graphics, int x, int y, int width, int height) {
-        square.getSprite().draw(graphics, x, y, width, height);
+    private void render(Square square, Graphics graphics, BoardInformation boardInformation) {
+        square.getSprite().draw(graphics, boardInformation.getX(), boardInformation.getY(), boardInformation.getWidth(), boardInformation.getHeight());
         for (Unit unit : square.getOccupants()) {
-            unit.getSprite().draw(graphics, x, y, width, height);
+            unit.getSprite().draw(graphics, boardInformation.getX(), boardInformation.getY(), boardInformation.getWidth(), boardInformation.getHeight());
         }
     }
+}
+
+class BoardInformation {
+    private int x;
+    private int y;
+
+    public BoardInformation(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    private int width;
+    private int height;
 }
