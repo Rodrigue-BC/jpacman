@@ -84,14 +84,16 @@ public class CollisionInteractionMap implements CollisionMap {
      * @param handler
      *            The handler that handles the collision.
      */
-    private void addHandler(Class<? extends Unit> collider,
-                            Class<? extends Unit> collidee, CollisionHandler<?, ?> handler) {
-        if (!isColliderInHandler(collider)) {
+    private void addHandler(Class<? extends Unit> collider, Class<? extends Unit> collidee, CollisionHandler<?, ?> handler) {
+        Map<Class<? extends Unit>, CollisionHandler<?, ?>> map = getOrCreateHandlerMap(collider);
+        map.put(collidee, handler);
+    }
+
+    private Map<Class<? extends Unit>, CollisionHandler<?, ?>> getOrCreateHandlerMap(Class<? extends Unit> collider) {
+        if (!handlers.containsKey(collider)) {
             handlers.put(collider, new HashMap<>());
         }
-
-        Map<Class<? extends Unit>, CollisionHandler<?, ?>> map = handlers.get(collider);
-        map.put(collidee, handler);
+        return handlers.get(collider);
     }
 
     private boolean isColliderInHandler(Class<? extends Unit> collider) {
@@ -152,18 +154,15 @@ public class CollisionInteractionMap implements CollisionMap {
      *            The class to search the most suitable key for.
      * @return The most specific class from the key collection.
      */
-    private Class<? extends Unit> getMostSpecificClass(
-        Map<Class<? extends Unit>, ?> map, Class<? extends Unit> key) {
-
+    private Class<? extends Unit> getMostSpecificClass(Map<Class<? extends Unit>, ?> map, Class<? extends Unit> key) {
         List<Class<? extends Unit>> collideeInheritance = getInheritance(key);
 
-        for (Class<? extends Unit> pointer : collideeInheritance) {
-            if (specificClass(map, pointer)) {
-                return pointer;
-            }
-        }
-        return null;
+        return collideeInheritance.stream()
+            .filter(pointer -> specificClass(map, pointer))
+            .findFirst()
+            .orElse(null);
     }
+
 
     private boolean specificClass(Map<Class<? extends Unit>, ?> map, Class<? extends Unit> pointer) {
         return map.containsKey(pointer);
