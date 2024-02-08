@@ -162,11 +162,10 @@ public class MapParser {
      * @throws PacmanConfigurationException If text lines are not properly formatted.
      */
     public Level parseMap(List<String> text) {
-
-        checkMapFormat(text);
-
         int height = text.size();
         int width = text.get(0).length();
+
+        checkMapFormat(text, width);
 
         char[][] map = new char[width][height];
         for (int x = 0; x < width; x++) {
@@ -182,28 +181,32 @@ public class MapParser {
      * @param text Map to be checked
      * @throws PacmanConfigurationException if map is not OK.
      */
-    private void checkMapFormat(List<String> text) {
+    private void checkMapFormat(List<String> text, int width) {
+        checkNotNull(text);
+        checkNotEmpty(text);
+        checkNonEmptyLines(text, width);
+    }
+
+    private void checkNotNull(List<String> text) {
         if (text == null) {
-            throw new PacmanConfigurationException(
-                "Input text cannot be null.");
+            throw new PacmanConfigurationException("Input text cannot be null.");
         }
+    }
 
+    private void checkNotEmpty(List<String> text) {
         if (text.isEmpty()) {
-            throw new PacmanConfigurationException(
-                "Input text must consist of at least 1 row.");
+            throw new PacmanConfigurationException("Input text must consist of at least 1 row.");
         }
+    }
 
-        int width = text.get(0).length();
-
+    private void checkNonEmptyLines(List<String> text, int width) {
         if (width == 0) {
-            throw new PacmanConfigurationException(
-                "Input text lines cannot be empty.");
+            throw new PacmanConfigurationException("Input text lines cannot be empty.");
         }
 
         for (String line : text) {
             if (line.length() != width) {
-                throw new PacmanConfigurationException(
-                    "Input text lines are not of equal width.");
+                throw new PacmanConfigurationException("Input text lines are not of equal width.");
             }
         }
     }
