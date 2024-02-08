@@ -116,6 +116,8 @@ class BoardPanel extends JPanel {
 class BoardInformation {
     private int x;
     private int y;
+    private int width;
+    private int height;
 
     public BoardInformation(int x, int y, int width, int height) {
         this.x = x;
@@ -156,6 +158,4 @@ class BoardInformation {
         this.height = height;
     }
 
-    private int width;
-    private int height;
 }
